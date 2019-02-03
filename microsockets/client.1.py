@@ -4,7 +4,7 @@ import websockets
 async def hello(uri):
     async with websockets.connect(uri) as websocket:
         await websocket.send('''{
-            "type":"SubChannelMessage", 
+            "type":"NewMessage", 
             "server": "server_id", 
             "channel": "channel_id",
             "body":"Message body!"

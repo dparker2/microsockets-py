@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import json
 
+from .serversocket import ServerSocket
+
 
 class MicroServer(object):
     handlers = {}
@@ -20,11 +22,17 @@ class MicroServer(object):
         asyncio.get_event_loop().run_forever()
 
     async def dispatch(self, websocket, path):
+        server_socket = ServerSocket(websocket)
+
         async for message in websocket:
             parsed = json.loads(message)
             name = parsed[self.key]
-            response = await self.handlers[name](parsed)
-            await websocket.send(json.dumps(response))
+            response = await self.handlers[name](server_socket, parsed)
+            if response:
+                await websocket.send(json.dumps({
+                    "status": 1,
+                    "response": response
+                }))
 
     def register(self, *, key):
         def decorator(handler):
