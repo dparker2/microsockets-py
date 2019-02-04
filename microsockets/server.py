@@ -38,3 +38,7 @@ class MicroServer(object):
         def decorator(handler):
             self.handlers[key] = handler
         return decorator
+
+    def register_handlers(self, handlers):
+        for key, handler in handlers.handlers:
+            self.register(key=key)(handler)

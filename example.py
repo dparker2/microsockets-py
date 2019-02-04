@@ -4,14 +4,14 @@ app = MicroServer()
 
 
 @app.register(key='NewMessage')
-async def newMessageHandler(websocket, message):
+async def new_message_handler(websocket, message):
     topic = '{}.{}.NewMessage'.format(message['server'], message['channel'])
-    websocket.publishToOthers(topic, message['body'])
+    websocket.publish_to_others(topic, message['body'])
     return {"response":"test"}
 
 
 @app.register(key='SubChannelMessage')
-async def subChannelMessageHandler(websocket, message):
+async def sub_channel_message_handler(websocket, message):
     topic = '{}.{}.NewMessage'.format(message['server'], message['channel'])
     websocket.subscribe(topic)
 

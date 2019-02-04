@@ -23,7 +23,7 @@ class ServerSocket(object):
         self.listeners[topic] = listener  # Store in dict so it is not garbage collected
         pub.subscribe(listener, topic)
 
-    def publishToOthers(self, topic, payload):
+    def publish_to_others(self, topic, payload):
         print(topic, payload)
         pub.sendMessage(
             topic,
