@@ -8,9 +8,6 @@ from .serversocket import ServerSocket
 class MicroServer(object):
     handlers = {}
 
-    def __init__(self):
-        pass
-
     def run(self, *, url='localhost', port=8765, key='type'):
         self.url = url
         self.port = port
@@ -33,6 +30,8 @@ class MicroServer(object):
                     "status": 1,
                     "response": response
                 }))
+        
+        server_socket.unsubscribe_all()
 
     def register(self, *, key):
         def decorator(handler):
@@ -40,5 +39,5 @@ class MicroServer(object):
         return decorator
 
     def register_handlers(self, handlers):
-        for key, handler in handlers.handlers:
+        for key, handler in handlers.handlers.items():
             self.register(key=key)(handler)

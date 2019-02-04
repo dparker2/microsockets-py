@@ -5,12 +5,13 @@ from pubsub import pub
 class ServerSocket(object):
     listeners = {}  # Need to store strong reference to these
 
+
     def __init__(self, websocket):
         self.__websocket = websocket
 
+
     def subscribe(self, topic):
         def listener(payload, source=None, include_self=True):
-            print(include_self, source, self.__websocket)
             if not include_self and source == self.__websocket:
                 return
 
@@ -20,11 +21,24 @@ class ServerSocket(object):
                     "payload": payload
                 }))
             asyncio.ensure_future(publish())
-        self.listeners[topic] = listener  # Store in dict so it is not garbage collected
+
+        if self.__websocket not in self.listeners:
+            self.listeners[self.__websocket] = {}
+        self.listeners[self.__websocket][topic] = listener  # Store in dict so it is not garbage collected
+
         pub.subscribe(listener, topic)
 
+
+    def unsubscribe(self, topic):
+        # Removing the reference to the listener will cause it to be garbage collected
+        del self.listeners[self.__websocket][topic]
+
+
+    def unsubscribe_all(self):
+        del self.listeners[self.__websocket]
+
+
     def publish_to_others(self, topic, payload):
-        print(topic, payload)
         pub.sendMessage(
             topic,
             payload=payload,
