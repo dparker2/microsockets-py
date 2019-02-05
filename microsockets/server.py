@@ -3,6 +3,7 @@ import websockets
 import json
 
 from .serversocket import ServerSocket
+from .servermessageprocessor import MessageProcessor
 
 
 class MicroServer(object):
@@ -10,10 +11,15 @@ class MicroServer(object):
         self.handlers = {}
         self.server = None  # Set by __run
 
-    def run(self, *, url='localhost', port=8765, key='type'):
+    def run(self, *, 
+        url='localhost', 
+        port=8765, 
+        key='type', 
+        MsgProcessorClass=MessageProcessor
+    ):
         self.url = url
         self.port = port
-        self.key = key
+        self.msg_processor = MsgProcessorClass(key)
 
         loop = asyncio.get_event_loop()
         # If a loop is already running (eg during tests) return an awaitable
@@ -31,12 +37,13 @@ class MicroServer(object):
     async def dispatch(self, websocket, path):
         server_socket = ServerSocket(websocket)
 
-        try: 
+        try:
+            # equiv to async for message in websocket
             while True:
                 message = await websocket.recv()
-                parsed = json.loads(message)
-                name = parsed[self.key]
-                response = await self.handlers[name](server_socket, parsed)
+                key, argument = self.msg_processor.extract_handler_arguments(message)
+                response = await self.handlers[key](server_socket, *argument if isinstance(argument, list) else argument)
+
                 if response:
                     await websocket.send(json.dumps({
                         "status": 1,
