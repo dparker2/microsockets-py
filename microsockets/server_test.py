@@ -2,23 +2,26 @@ import pytest
 import asyncio
 import websockets
 from time import sleep
+from async_generator import yield_, async_generator
 from .server import MicroServer
 
 
-@pytest.fixture()
+@pytest.fixture
+@async_generator
 async def app():
     app = MicroServer()
-    yield app
+    await yield_(app)  # yield inside async cannot be used in py3.5
     await app.close()
 
 
-@pytest.fixture()
+@pytest.fixture
+@async_generator
 async def running_app(app):
     await app.run()
-    yield app
+    await yield_(app)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def async_stub(mocker):
     stub = mocker.MagicMock(return_value=asyncio.Future())
     stub.return_value.set_result({"status":1})
