@@ -31,16 +31,19 @@ class MicroServer(object):
     async def dispatch(self, websocket, path):
         server_socket = ServerSocket(websocket)
 
-        async for message in websocket:
-            parsed = json.loads(message)
-            name = parsed[self.key]
-            response = await self.handlers[name](server_socket, parsed)
-            if response:
-                await websocket.send(json.dumps({
-                    "status": 1,
-                    "response": response
-                }))
-        server_socket.unsubscribe_all()
+        try: 
+            while True:
+                message = await websocket.recv()
+                parsed = json.loads(message)
+                name = parsed[self.key]
+                response = await self.handlers[name](server_socket, parsed)
+                if response:
+                    await websocket.send(json.dumps({
+                        "status": 1,
+                        "response": response
+                    }))
+        except websockets.exceptions.ConnectionClosed:
+            server_socket.unsubscribe_all()
 
 
     async def close(self):
