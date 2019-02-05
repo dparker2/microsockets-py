@@ -35,7 +35,8 @@ class ServerSocket(object):
 
 
     def unsubscribe_all(self):
-        del self.listeners[self.__websocket]
+        if self.__websocket in self.listeners:
+            del self.listeners[self.__websocket]
 
 
     def publish_to_others(self, topic, payload):

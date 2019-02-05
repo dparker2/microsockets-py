@@ -1,1 +1,3 @@
 microsockets/__pycache__
+.pytest_cache
+.coverage

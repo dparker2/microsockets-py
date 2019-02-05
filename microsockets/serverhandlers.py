@@ -1,5 +1,6 @@
 class Handlers(object):
-    handlers = {}
+    def __init__(self):
+        self.handlers = {}
 
     def register(self, *, key):
         def decorator(handler):
