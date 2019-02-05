@@ -1,7 +1,6 @@
 import pytest
 import asyncio
 import websockets
-from time import sleep
 from async_generator import yield_, async_generator
 from .server import MicroServer
 
