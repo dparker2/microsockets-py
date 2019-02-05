@@ -6,12 +6,14 @@ from .serversocket import ServerSocket
 
 
 class MicroServer(object):
+    def __init__(self):
+        self.handlers = {}
+        self.server = None  # Set by __run
+
     def run(self, *, url='localhost', port=8765, key='type'):
         self.url = url
         self.port = port
         self.key = key
-        self.handlers = {}
-        self.server = None  # Set by __run
 
         loop = asyncio.get_event_loop()
         # If a loop is already running (eg during tests) return an awaitable

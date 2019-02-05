@@ -63,14 +63,15 @@ async def test_handler_not_exists(running_app, async_stub):
 
 
 @pytest.mark.asyncio
-async def test_register_handlers(running_app, async_stub):
+async def test_register_handlers(app, async_stub):
     class MockHandlers(object):
         pass
 
     mockHandlers = MockHandlers()
     mockHandlers.handlers = {'TestKey':async_stub}
 
-    running_app.register_handlers(mockHandlers)
+    app.register_handlers(mockHandlers)
+    await app.run()
 
     async with websockets.connect('ws://localhost:8765') as websocket:
         await websocket.send('{"type":"TestKey"}')
