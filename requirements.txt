@@ -1,4 +1,5 @@
 async_generator==1.10
+codecov==2.0.15
 Pypubsub==4.0.3
 pytest==4.2.0
 pytest-asyncio==0.10.0
