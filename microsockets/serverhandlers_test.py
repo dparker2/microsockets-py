@@ -7,8 +7,7 @@ def handlers():
     return Handlers()
 
 
-def test_register(handlers):
-    def handler():
-        pass
-    handlers.register(key='TestKey')(handler)
-    assert handlers.handlers['TestKey'] == handler
+def test_register(handlers, mocker):
+    stub = mocker.stub()
+    handlers.register(key='TestKey')(stub)
+    assert handlers.handlers['TestKey'] == stub

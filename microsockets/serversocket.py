@@ -31,7 +31,8 @@ class ServerSocket(object):
 
     def unsubscribe(self, topic):
         # Removing the reference to the listener will cause it to be garbage collected
-        del self.listeners[self.__websocket][topic]
+        if self.__websocket in self.listeners and topic in self.listeners[self.__websocket]:
+            del self.listeners[self.__websocket][topic]
 
 
     def unsubscribe_all(self):
