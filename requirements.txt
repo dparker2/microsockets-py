@@ -1,6 +1,6 @@
-Pypubsub=4.0.3
-pytest=4.2.0
-pytest-asyncio=0.10.0
-pytest-cov=2.6.1
-pytest-mock=1.10.1
-websockets=7.0
+Pypubsub==4.0.3
+pytest==4.2.0
+pytest-asyncio==0.10.0
+pytest-cov==2.6.1
+pytest-mock==1.10.1
+websockets==7.0
