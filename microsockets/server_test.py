@@ -49,7 +49,6 @@ async def test_handler_exists(running_app, async_stub):
 
     async with websockets.connect('ws://localhost:8765') as websocket:
         await websocket.send('{"type":"TestKey"}')
-        await websocket.recv()
 
     assert async_stub.call_count == 1
 
@@ -76,6 +75,5 @@ async def test_register_handlers(running_app, async_stub):
 
     async with websockets.connect('ws://localhost:8765') as websocket:
         await websocket.send('{"type":"TestKey"}')
-        await websocket.recv()
 
     assert async_stub.call_count == 1
