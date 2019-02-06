@@ -11,7 +11,8 @@ class ServerSocket(object):
 
 
     def subscribe(self, topic):
-        def listener(payload, source=None, include_self=True):
+        # Make a new function for each subscribe
+        def listener(payload, tasks=[], source=None, include_self=True):
             if not include_self and source == self.__websocket:
                 return
 
@@ -20,7 +21,8 @@ class ServerSocket(object):
                     "topic": topic,
                     "payload": payload
                 }))
-            asyncio.ensure_future(publish())
+            # Add the websocket send tasks to the event loop and tasks variable passed
+            tasks.append(asyncio.ensure_future(publish()))
 
         if self.__websocket not in self.listeners:
             self.listeners[self.__websocket] = {}
@@ -40,10 +42,13 @@ class ServerSocket(object):
             del self.listeners[self.__websocket]
 
 
-    def publish_to_others(self, topic, payload):
+    async def publish_to_others(self, topic, payload):
+        publishes = []
         pub.sendMessage(
             topic,
             payload=payload,
+            tasks=publishes,
             source=self.__websocket,
             include_self=False
         )
+        return asyncio.gather(*publishes)
