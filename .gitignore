@@ -1,3 +1,6 @@
-microsockets/__pycache__
 .pytest_cache
 .coverage
+.cache
+
+*__pycache__
+*.pyc

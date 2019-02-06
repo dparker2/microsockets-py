@@ -9,7 +9,7 @@ from .serversocket import ServerSocket
 def MockWebsocket():
     class MockSocket(object):
         async def send(self, arg):
-            print('hmm')
+            pass
     return MockSocket
 
 
@@ -24,8 +24,7 @@ async def test_pub_others(MockWebsocket, mocker):
     # Publish to the topic
     mainsocket = ServerSocket(MockWebsocket())
     mainsocket.subscribe('Test')
-    mainsocket.publish_to_others('Test', 'Test')
-    await asyncio.sleep(0)  # Let other tasks run (the websocket.send)
+    await mainsocket.publish_to_others('Test', 'Test')
     assert spy.call_count == 1
 
 

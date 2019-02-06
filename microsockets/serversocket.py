@@ -51,4 +51,4 @@ class ServerSocket(object):
             source=self.__websocket,
             include_self=False
         )
-        return asyncio.gather(*publishes)
+        return await asyncio.gather(*publishes)
