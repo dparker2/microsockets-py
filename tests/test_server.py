@@ -2,7 +2,7 @@ import pytest
 import asyncio
 import websockets
 from async_generator import yield_, async_generator
-from .server import MicroServer
+from microsockets.server import MicroServer
 
 
 @pytest.fixture

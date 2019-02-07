@@ -1,5 +1,5 @@
 import pytest
-from .serverhandlers import Handlers
+from microsockets.serverhandlers import Handlers
 
 
 @pytest.fixture
