@@ -4,12 +4,15 @@ import json
 
 from .serversocket import ServerSocket
 from .servermessageprocessor import MessageProcessor
+from .router import Router
 
 
 class MicroServer(object):
     def __init__(self):
-        self.handlers = {}
-        self.server = None  # Set by __run
+        self.router = Router()
+        self.server = None
+        self.url = None
+        self.port = None
 
     def run(self, *, 
         url='localhost', 
@@ -19,7 +22,7 @@ class MicroServer(object):
     ):
         self.url = url
         self.port = port
-        self.msg_processor = MsgProcessorClass(key)
+        self.router.set_msg_processor(MsgProcessorClass(key))
 
         loop = asyncio.get_event_loop()
         # If a loop is already running (eg during tests) return an awaitable
@@ -31,26 +34,7 @@ class MicroServer(object):
 
 
     async def __run(self):
-        self.server = await websockets.serve(self.dispatch, self.url, self.port)
-
-
-    async def dispatch(self, websocket, path):
-        server_socket = ServerSocket(websocket)
-
-        try:
-            # equiv to async for message in websocket
-            while True:
-                message = await websocket.recv()
-                key, argument = self.msg_processor.extract_handler_arguments(message)
-                response = await self.handlers[key](server_socket, *argument if isinstance(argument, list) else argument)
-
-                if response:
-                    await websocket.send(json.dumps({
-                        "status": 1,
-                        "response": response
-                    }))
-        except websockets.exceptions.ConnectionClosed:
-            server_socket.unsubscribe_all()
+        self.server = await websockets.serve(self.router.dispatch, self.url, self.port)
 
 
     async def close(self):
@@ -60,7 +44,7 @@ class MicroServer(object):
 
     def register(self, *, key):
         def decorator(handler):
-            self.handlers[key] = handler
+            self.router.set_handler(key, handler)
         return decorator
 
 
