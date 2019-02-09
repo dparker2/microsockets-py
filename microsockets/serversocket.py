@@ -9,6 +9,14 @@ class ServerSocket(object):
     def __init__(self, websocket):
         self.__websocket = websocket
 
+    
+    async def recv(self):
+        return await self.__websocket.recv()
+
+
+    async def send(self, data):
+        return await self.__websocket.send(data)
+
 
     def subscribe(self, topic):
         # Make a new function for each subscribe

@@ -25,6 +25,7 @@ class MicroServer(object):
         self.router.set_msg_processor(MsgProcessorClass(key))
 
         loop = asyncio.get_event_loop()
+
         # If a loop is already running (eg during tests) return an awaitable
         if loop.is_running():
             return asyncio.ensure_future(self.__run())
@@ -34,7 +35,7 @@ class MicroServer(object):
 
 
     async def __run(self):
-        self.server = await websockets.serve(self.router.dispatch, self.url, self.port)
+        self.server = await websockets.serve(self.router.handle_connection, self.url, self.port)
 
 
     async def close(self):
