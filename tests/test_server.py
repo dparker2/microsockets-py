@@ -23,7 +23,7 @@ async def running_app(app):
 @pytest.fixture
 async def async_stub(mocker):
     stub = mocker.MagicMock(return_value=asyncio.Future())
-    stub.return_value.set_result({"status":1})
+    stub.return_value.set_result(('test', 'message'))
     return stub
 
 

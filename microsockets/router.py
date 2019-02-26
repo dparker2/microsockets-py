@@ -7,6 +7,7 @@ from .serversocket import ServerSocket
 class Router(object):
     def __init__(self):
         self.handlers = {}
+        self.marshaller = None
         self.unmarshaller = None
 
 
@@ -23,19 +24,19 @@ class Router(object):
         # equiv to async for message in websocket
         while True:
             message = await server_socket.recv()
-            key, argument = self.unmarshaller.get_handler_arguments(message)
-            response = await self.handlers[key](server_socket, *argument if isinstance(argument, list) else argument)
+            key, argument = self.unmarshaller.extract_handler_arguments(message)
+            arguments = argument if isinstance(argument, list) else [argument]
+            response = await self.handlers[key](server_socket, *arguments)
 
             if response:
-                await server_socket.send(json.dumps({
-                    "status": 1,
-                    "response": response
-                }))
+                ws_resp = self.marshaller.to_string(response[0], response[1])
+                await server_socket.send(ws_resp)
 
 
     def set_handler(self, key, handler):
         self.handlers[key] = handler
 
 
-    def set_unmarshaller(self, unmarshaller):
+    def set_marshallers(self, marshaller, unmarshaller):
+        self.marshaller = marshaller
         self.unmarshaller = unmarshaller

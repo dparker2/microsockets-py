@@ -3,7 +3,7 @@ import websockets
 import json
 
 from .serversocket import ServerSocket
-from .messageunmarshaller import MessageUnmarshaller
+from .marshalsocket import SocketUnmarshaller, SocketMarshaller
 from .router import Router
 
 
@@ -16,13 +16,16 @@ class MicroServer(object):
 
     def run(self, *, 
         url='localhost', 
-        port=8765, 
-        key='type', 
-        MsgProcessorClass=MessageUnmarshaller
+        port=8765,
+        SocketMarshallerClass=SocketMarshaller,
+        SocketUnmarshallerClass=SocketUnmarshaller
     ):
         self.url = url
         self.port = port
-        self.router.set_unmarshaller(MsgProcessorClass(key))
+        self.router.set_marshallers(
+            SocketMarshallerClass(),
+            SocketUnmarshallerClass()
+        )
 
         loop = asyncio.get_event_loop()
 
