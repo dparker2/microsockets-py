@@ -1,34 +1,25 @@
-from microsockets import MicroServer, Handlers
+import json
+import microsockets
 
-# Handlers is used to register handlers which are later registered
-# by MicroServer.register_handlers(), allowing handlers to be
-# registered in separate files.
-handlers = Handlers()
+app = microsockets.Application()
 
 
-@handlers.register(key='SubChannel')
-async def sub_channel_message_handler(websocket, message):
-    topic = '{}.{}'.format(message['server'], message['channel'])
-    websocket.subscribe(topic)
+@app.middleware.before_on
+async def load_payload(ws, func):
+    ws.payload = json.loads(ws.payload)
+    await func(ws)
 
 
-@handlers.register(key='NewMessage')
-async def new_message_handler(websocket, message):
-    topic = '{}.{}.NewMessage'.format(message['server'], message['channel'])
-    websocket.publish_to_others(topic, message)
-    return True
-
-app = MicroServer()
-app.register_handlers(handlers)
-
-
-# Message handlers can also be registered directly on the MicroServer
-# instance itself.
-@app.register(key='LeaveChannel')
-async def leave_channel_handler(websocket, message):
-    topic = '{}.{}'.format(message['server'], message['channel'])
-    websocket.unsubscribe(topic)
-
-
-if __name__ == '__main__':
-    app.run()
+@app.on("topic")
+async def handle(ws):
+    # process this event
+    # ws.scope <-- asgi scope object
+    # ws.emit("event", "")
+    # ws.join("room")
+    # ws.broadcast("event", "", to=["room"])
+    # ws.payload <-- payload received
+    # ws.event <-- exact event emitted
+    print(ws.payload)
+    ws.join("room1")
+    await ws.emit("message", "received")
+    await ws.broadcast("broadcast", "hello, everyone!", to=["room1"])

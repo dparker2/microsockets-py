@@ -1,67 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Example</title>
     <script type="text/javascript">
-        var exampleSocket = new WebSocket("ws://localhost:8765/");
-        var server = "ExampleServer";
-        var channel = "ExampleChannel";
 
-        exampleSocket.onopen = function (event) {
-            exampleSocket.send(JSON.stringify({
-                type: "SubChannel",
-                server: server,
-                channel: channel
-            })); 
+        var socket = new WebSocket("ws://127.0.0.1:8000");
+
+        socket.onopen = function (e) {
+            document.write("[open] Connection established <br />");
+            document.write("Sending to server <br />");
+            socket.send(JSON.stringify({
+                event: "topic",
+                payload: JSON.stringify({ data: "hello!" })
+            }));
         };
-    </script>
-</head>
-<body>
-    <input
-        id="msg"
-        type="text"
-    />
-    <button id="send">Send Message</button>
-    <button id="leave">Stop Messages</button>
-    <ul id="messages"></ul>
-    <script type="text/javascript">
-        var messageInput = document.getElementById("msg");
-        var messages = document.getElementById("messages");
 
-        function putNewMessage(message) {
-            var li = document.createElement("li");
-            var text = document.createTextNode(message);
-            li.appendChild(text);
-            messages.appendChild(li);
-        }
+        socket.onmessage = function (event) {
+            document.write(`[message] Data received from server: ${event.data} <br />`);
+        };
 
-        document.getElementById("send").addEventListener("click", function(event) {
-            exampleSocket.send(JSON.stringify({
-                type: "NewMessage",
-                server: server,
-                channel: channel,
-                message: messageInput.value
-            }));
-            putNewMessage(messageInput.value)
-            messageInput.value = "";
-        });
-
-        document.getElementById("leave").addEventListener("click", function(event) {
-            exampleSocket.send(JSON.stringify({
-                type: "LeaveChannel",
-                server: server,
-                channel: channel
-            }));
-        });
-    
-        exampleSocket.onmessage = function(event) {
-            var response = JSON.parse(event.data);
-
-            if(response.payload && response.payload.message) {
-                putNewMessage(response.payload.message);
+        socket.onclose = function (event) {
+            if (event.wasClean) {
+                document.write(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason} <br />`);
+            } else {
+                // e.g. server process killed or network down
+                // event.code is usually 1006 in this case
+                document.write('[close] Connection died <br />');
             }
         };
+
+        socket.onerror = function (error) {
+            document.write(`[error] ${error.message} <br />`);
+        };
+
     </script>
+</head>
+
+<body>
+
 </body>
+
 </html>
