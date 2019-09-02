@@ -4,7 +4,7 @@ import microsockets
 app = microsockets.Application()
 
 
-@app.middleware.before_on
+@app.hooks.before_on
 async def load_payload(ws, func):
     ws.payload = json.loads(ws.payload)
     await func(ws)
@@ -20,6 +20,6 @@ async def handle(ws):
     # ws.payload <-- payload received
     # ws.event <-- exact event emitted
     print(ws.payload)
-    ws.join("room1")
+    await ws.join("room1")
     await ws.emit("message", "received")
     await ws.broadcast("broadcast", "hello, everyone!", to=["room1"])
