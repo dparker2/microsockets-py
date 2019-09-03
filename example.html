@@ -6,22 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Example</title>
+    <script src="https://unpkg.com/microsockets@1.0.1/index.js"></script>
     <script type="text/javascript">
-
-        var socket = new WebSocket("ws://127.0.0.1:8000");
+        var socket = MicroSocket("ws://127.0.0.1:8000");
 
         socket.onopen = function (e) {
             document.write("[open] Connection established <br />");
-            document.write("Sending to server <br />");
-            socket.send(JSON.stringify({
-                event: "topic",
-                payload: JSON.stringify({ data: "hello!" })
-            }));
+            document.write("Joining room <br />");
+            socket.send("join", JSON.stringify({ room: "gamers", user: Math.random() }));
         };
 
-        socket.onmessage = function (event) {
-            document.write(`[message] Data received from server: ${event.data} <br />`);
-        };
+        socket.on("joined", function (payload) {
+            document.write(`[joined] Payload: ${payload} <br />`);
+        });
+
+        socket.on("user joined", function (payload) {
+            document.write(`[user joined] Payload: ${payload} <br />`);
+        });
 
         socket.onclose = function (event) {
             if (event.wasClean) {

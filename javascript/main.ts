@@ -1,45 +1,50 @@
-export default class MicroSocket extends WebSocket {
-    listeners: { [key: string]: Function[]; }
+interface MicroSocket extends WebSocket {
+    on?: (event: string, callback: Function) => void;
+    off?: (event: string, callback?: Function) => void;
+    send: (payload: string, event?: string) => void;
+}
 
-    constructor(url: string, protocols: string | string[]) {
-        super(url, protocols);
-        this.listeners = {};
-        this.addEventListener('message', wsEvent => {
-            const { event, payload } = JSON.parse(wsEvent.data);
-            const listeners = this.listeners[event]
-            if (listeners) {
-                listeners.forEach(listener => {
-                    listener(payload, event, wsEvent)
-                });
-            }
-        })
-    }
+export default function (url: string, protocols?: string | string[]) {
+    const listeners: { [key: string]: Function[]; } = {};
+    const websocket: MicroSocket = new WebSocket(url, protocols);
 
-    on(event: string, callback: Function) {
-        if (!this.listeners[event]) {
-            this.listeners[event] = []
+    websocket.on = function (event: string, callback: Function) {
+        if (!listeners[event]) {
+            listeners[event] = [callback]
         } else {
-            this.listeners[event].push(callback)
+            listeners[event].push(callback)
         }
     }
 
-    off(event: string, callback: Function) {
-        const listeners = this.listeners[event];
-        if (!listeners) {
+    websocket.off = function (event: string, callback?: Function) {
+        const funcs = listeners[event];
+        if (!funcs) {
             return;
         }
         if (callback) {
-            const index = listeners.indexOf(callback);
+            const index = funcs.indexOf(callback);
             if (index > -1) {
-                listeners.splice(index, 1);
+                funcs.splice(index, 1);
             }
         } else {
-            delete this.listeners[event];
+            delete listeners[event];
         }
     }
 
-    send(payload: string, event: string = "") {
+    websocket.send = function (event: string, payload: string = "") {
         const data = JSON.stringify({ event, payload })
-        super.send(data)
+        this.__proto__.send.call(this, data)
     }
+
+    websocket.addEventListener('message', function (wsEvent) {
+        const { event, payload } = JSON.parse(wsEvent.data);
+        const funcs = listeners[event];
+        if (funcs) {
+            funcs.forEach(function (listener) {
+                listener(payload, event, wsEvent);
+            });
+        }
+    });
+
+    return websocket;
 }

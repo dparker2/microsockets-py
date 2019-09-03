@@ -38,7 +38,6 @@ class WebsocketScope(Scope):
         while True:
             ws.code = None
             message = await receive()
-            print(message)
             if message["type"] == "websocket.connect":
                 hook_result = await self.connect_hook(ws)
                 try:

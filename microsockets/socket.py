@@ -11,7 +11,7 @@ class Socket(object):
         self.__send = send
         self.__room_manager = room_manager
 
-    async def emit(self, event, payload: str):
+    async def emit(self, event, payload: str = ""):
         await self.__send(
             dict(
                 type="websocket.send",
