@@ -1,6 +1,6 @@
 # Microsockets
 
-## ASGI Websocket Server made with simplicity in mind.
+## ASGI Websocket library made with simplicity in mind.
 
 ### Install
 ```bash
